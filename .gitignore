@@ -1,6 +1,9 @@
 .venv/
 __pycache__/
 *.pyc
+*.egg-info/
+.pytest_cache/
+.import_linter_cache/
 data/
 sandbox/
 .env

@@ -2,8 +2,9 @@
 assistant:
   name: AIKOs
   languages: [th, en]
+  memory_turns: 10         # how many recent exchanges AIKOs remembers
 
-profile: minimum        # minimum (4 GB RAM), standard (8 GB) or high (16 GB+ / GPU)
+profile: minimum           # minimum (4 GB RAM), standard (8 GB) or high (16 GB+ / GPU)
 
 llm:
   provider: ollama
@@ -11,6 +12,7 @@ llm:
   model: qwen3:1.7b
   fast_model: qwen3:1.7b
   embed_model: nomic-embed-text
+  no_think: true           # faster answers from Qwen3 on low-spec PCs
 
 speech:                    # used from Phase 2
   stt_model: base          # faster-whisper: base (faster) or small (better Thai)
@@ -28,3 +30,6 @@ cloud:                     # Phase 6
 safety:
   confirm_before_changes: true
   email_mode: draft_only
+
+paths:
+  data_dir: data           # notes, reminders, memory, logs (not in Git)
