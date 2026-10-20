@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aikos"
+version = "0.1.0"
+description = "AIKOs (Artificial Intelligence Kontrol Operating System): a local voice secretary for low-spec Windows PCs"
+requires-python = ">=3.12"
+dependencies = ["ollama", "pyyaml", "pydantic>=2"]
+
+[project.optional-dependencies]
+dev = ["pytest", "import-linter"]
+
+[project.scripts]
+aikos = "aikos.main:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+markers = ["live: needs a running Ollama with the configured model (set AIKOS_LIVE=1)"]
+
+# Clean Architecture rules, checked by `lint-imports` and tests/test_architecture.py.
+# Dependencies point inward: interface/infrastructure -> application -> domain.
+[tool.importlinter]
+root_package = "aikos"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "Layers: interface -> application -> domain"
+type = "layers"
+layers = ["aikos.bootstrap", "aikos.interface", "aikos.application", "aikos.domain"]
+
+[[tool.importlinter.contracts]]
+name = "Layers: infrastructure -> application -> domain"
+type = "layers"
+layers = ["aikos.bootstrap", "aikos.infrastructure", "aikos.application", "aikos.domain"]
+
+[[tool.importlinter.contracts]]
+name = "Interface and infrastructure stay independent"
+type = "independence"
+modules = ["aikos.interface", "aikos.infrastructure"]
+
+[[tool.importlinter.contracts]]
+name = "Domain and application use no outside libraries"
+type = "forbidden"
+source_modules = ["aikos.domain", "aikos.application"]
+forbidden_modules = ["ollama", "yaml", "pydantic", "anthropic", "sounddevice", "faster_whisper"]

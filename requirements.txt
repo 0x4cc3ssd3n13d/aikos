@@ -1,1 +1,5 @@
+# Runtime packages (the Phase 0 setup script installs these).
+# For development, run instead:  .venv\Scripts\python.exe -m pip install -e ".[dev]"
 ollama
+pyyaml
+pydantic>=2
