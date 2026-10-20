@@ -1,0 +1,30 @@
+# AIKOs settings. Change values here, never in the code.
+assistant:
+  name: AIKOs
+  languages: [th, en]
+
+profile: minimum        # minimum (4 GB RAM), standard (8 GB) or high (16 GB+ / GPU)
+
+llm:
+  provider: ollama
+  host: http://127.0.0.1:11434
+  model: qwen3:1.7b
+  fast_model: qwen3:1.7b
+  embed_model: nomic-embed-text
+
+speech:                    # used from Phase 2
+  stt_model: base          # faster-whisper: base (faster) or small (better Thai)
+  push_to_talk_key: ctrl+alt+space
+  wake_word: hey_aikos     # Phase 3
+  tts_english: piper
+  tts_thai: edge-tts
+
+cloud:                     # Phase 6
+  enabled: false
+  provider: anthropic
+  model: claude-opus-5-5
+  monthly_budget_usd: 10
+
+safety:
+  confirm_before_changes: true
+  email_mode: draft_only
