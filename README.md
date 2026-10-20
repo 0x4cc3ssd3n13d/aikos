@@ -2,6 +2,8 @@
 
 Artificial Intelligence Kontrol (Control) Operating System: a voice secretary that runs on your own low-spec Windows PC.
 
+Full guide (Thai): what is installed, how the code is organised and what each file does: [docs/PROJECT_GUIDE.md](docs/PROJECT_GUIDE.md).
+
 ## Project structure (Clean Architecture)
 
 ```text
