@@ -1,6 +1,8 @@
 # AIKOs settings. Change values here, never in the code.
 assistant:
-  name: AIKOs
+  name: Aiko               # said like the Japanese name "Aiko"
+  name_th: ไอโกะ
+  self_pronoun_th: ฉัน      # how she refers to herself in Thai
   languages: [th, en]
   memory_turns: 10         # how many recent exchanges AIKOs remembers
 
@@ -17,9 +19,11 @@ llm:
 speech:                    # used from Phase 2
   stt_model: base          # faster-whisper: base (faster) or small (better Thai)
   push_to_talk_key: ctrl+alt+space
-  wake_word: hey_aikos     # Phase 3
+  wake_words: [ไอโกะ, Aiko, สวัสดี ไอโกะ]   # Phase 3: hearing any of these wakes her up
   tts_english: piper
+  tts_english_voice: en_US-amy-medium      # female voice
   tts_thai: edge-tts
+  tts_thai_voice: th-TH-PremwadeeNeural    # female voice
 
 cloud:                     # Phase 6
   enabled: false
