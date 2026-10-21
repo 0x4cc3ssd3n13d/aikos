@@ -24,7 +24,7 @@ def build_container(settings: Settings, model: LanguageModel | None = None) -> C
     chat = Chat(
         model,
         Conversation(max_turns=settings.assistant.memory_turns),
-        system_prompt(settings.assistant.name),
+        system_prompt(settings.assistant.name, settings.assistant.name_th, settings.assistant.self_pronoun_th),
     )
     notes = MarkdownNoteRepository(settings.paths.data_dir / "notes")
     return Container(chat=chat, take_note=TakeNote(notes, SystemClock()))

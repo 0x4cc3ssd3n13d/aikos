@@ -10,7 +10,10 @@ PROJECT_CONFIG = Path(__file__).resolve().parents[3] / "config.yaml"
 
 def test_project_config_loads():
     settings = load_settings(PROJECT_CONFIG)
-    assert settings.assistant.name == "AIKOs"
+    assert settings.assistant.name == "Aiko"
+    assert settings.assistant.name_th == "ไอโกะ"
+    assert settings.assistant.self_pronoun_th == "ฉัน"
+    assert settings.speech.wake_words == ["ไอโกะ", "Aiko", "สวัสดี ไอโกะ"]
     assert settings.profile == "minimum"
     assert settings.llm.model == "qwen3:1.7b"
     assert settings.cloud.enabled is False
@@ -35,5 +38,7 @@ def test_container_wires_use_cases(tmp_path, model):
     config.write_text("paths:\n  data_dir: mydata\n", encoding="utf-8")
     container = build_container(load_settings(config), model=model)
     assert container.chat.execute("hi") == "OK"
+    system = model.calls[0][0].content
+    assert "ไอโกะ" in system and '"ฉัน"' in system
     container.take_note.execute("from the container")
     assert list((tmp_path / "mydata" / "notes").glob("*.md"))
