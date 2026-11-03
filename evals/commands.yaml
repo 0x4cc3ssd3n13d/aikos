@@ -1,0 +1,20 @@
+# What Aiko should do for each message: the tool to call, or "none" for a normal reply.
+# Run: .venv\Scripts\python.exe scripts\run_evals.py
+- {say: "จดไว้หน่อยว่าพรุ่งนี้ต้องซื้อนม", tool: take_note}
+- {say: "ช่วยจดว่าประชุมเลื่อนเป็นบ่ายสาม", tool: take_note}
+- {say: "จำไว้นะว่ารหัสห้องประชุมคือ 4412", tool: take_note}
+- {say: "บันทึกไว้ว่าต้องโทรหาแม่ตอนเย็น", tool: take_note}
+- {say: "Note that the meeting moved to 3pm", tool: take_note}
+- {say: "Remember to buy coffee beans", tool: take_note}
+- {say: "Write down: dentist on Friday at 10", tool: take_note}
+- {say: "วันนี้จดอะไรไว้บ้าง", tool: list_notes}
+- {say: "ขอดูโน้ตล่าสุดหน่อย", tool: list_notes}
+- {say: "ฉันบันทึกอะไรไว้บ้าง", tool: list_notes}
+- {say: "What notes do I have?", tool: list_notes}
+- {say: "Show me my notes", tool: list_notes}
+- {say: "สวัสดี ไอโกะ", tool: none}
+- {say: "วันนี้อากาศเป็นยังไงบ้าง", tool: none}
+- {say: "ช่วยแนะนำวิธีจดโน้ตให้มีประสิทธิภาพหน่อย", tool: none}
+- {say: "What is 2 + 2?", tool: none}
+- {say: "Hi Aiko, how are you?", tool: none}
+- {say: "Explain what a note-taking app is", tool: none}

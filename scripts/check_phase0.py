@@ -10,8 +10,8 @@ import time
 def ask(ollama, model: str, text: str) -> tuple[str, float, float | None]:
     """Send one message; return (answer, seconds, tokens per second)."""
     start = time.perf_counter()
-    # "/no_think" asks Qwen3 to skip its long reasoning so answers come back faster.
-    resp = ollama.chat(model=model, messages=[{"role": "user", "content": text + " /no_think"}])
+    # think=False makes Qwen3 skip its hidden reasoning; newer Ollama ignores the old "/no_think" text.
+    resp = ollama.chat(model=model, messages=[{"role": "user", "content": text}], think=False)
     seconds = time.perf_counter() - start
     answer = re.sub(r"<think>.*?</think>", "", resp["message"]["content"], flags=re.S).strip()
     try:

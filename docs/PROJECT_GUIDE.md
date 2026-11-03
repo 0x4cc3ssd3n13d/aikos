@@ -20,6 +20,8 @@ AIKOs (Artificial Intelligence Kontrol Operating System) คือเลขา�
 - **ดาวน์โหลดไม่ผ่าน** (error `0x80072ee7`, `0x80072f19`, `0x80072ee2`): เน็ตหลุดหรือช้า แก้ด้วยการโหลดแบบต่อจากจุดเดิม (`curl.exe -C -`)
 - **ติดตั้งไม่ผ่าน** (error `1602` หรือ `1603`): หน้าต่าง Windows ขออนุญาตไม่ได้ถูกกด Yes หรือหมดเวลา
 - **PowerShell ไม่รัน `npm`**: Windows บล็อกสคริปต์ `.ps1` ให้ใช้ `npm.cmd` แทน
+- **โมเดลตอบช้า** (คำว่า "ready" ใช้ 22 วินาที): Ollama รุ่นใหม่ไม่สนข้อความ `/no_think` โมเดลเลยแอบ "คิด" ก่อนตอบ แก้โดยส่ง `think=False` ไปกับ API ตอนนี้เหลือ 0.5 วินาที
+- **Ollama ไม่ทำงานหลังเปิดเครื่องใหม่**: เปิดโปรแกรม Ollama จากเมนู Start (หรือ `ollama serve`)
 - **โปรแกรมเพิ่งติดตั้งแต่หาไม่เจอ**: ต้องปิดแล้วเปิดหน้าต่าง PowerShell ใหม่ เพื่อให้ค่า PATH อัปเดต
 
 ---
@@ -164,11 +166,13 @@ AIKOs (Artificial Intelligence Kontrol Operating System) คือเลขา�
 | `application/ports/speech.py` | Application | port เสียง: `SpeechToText`, `TextToSpeech`, `WakeWordDetector` (Phase 2-3) |
 | `application/use_cases/chat.py` | Application | `Chat.execute(text)` ส่งประวัติแชทให้โมเดลแล้วจำคำตอบ |
 | `application/use_cases/take_note.py` | Application | `TakeNote.execute(text)` สร้างโน้ตพร้อมเวลาแล้วบันทึก |
-| `infrastructure/llm/ollama_model.py` | Infrastructure | `OllamaLanguageModel` เรียก Ollama, เติม `/no_think`, ตัด `<think>...</think>` ออก |
+| `application/use_cases/list_notes.py` | Application | `ListNotes.execute(limit)` คืนโน้ตล่าสุด ใหม่สุดก่อน |
+| `application/tools.py` | Application | รายการเครื่องมือที่โมเดลเลือกใช้ได้ (`take_note`, `list_notes`) และ `CHANGES_DATA` = เครื่องมือที่ต้องถามก่อน |
+| `infrastructure/llm/ollama_model.py` | Infrastructure | `OllamaLanguageModel` เรียก Ollama ด้วย `think=False`, ส่งรายการเครื่องมือ, อ่านว่าโมเดลขอใช้เครื่องมือไหน |
 | `infrastructure/storage/markdown_notes.py` | Infrastructure | `MarkdownNoteRepository` เก็บโน้ตเป็นไฟล์ `data/notes/YYYY-MM-DD.md` วันละไฟล์ |
 | `infrastructure/system/clock.py` | Infrastructure | `SystemClock` เวลาเครื่องพร้อม time zone |
 | `infrastructure/{calendar,email,files,notify,scheduler,speech}/` | Infrastructure | โฟลเดอร์เตรียมไว้สำหรับ Phase หลัง (ยังว่าง) |
-| `interface/cli/chat_cli.py` | Interface | `run_chat()` หน้าแชทใน terminal: `/note`, `/help`, `/quit` |
+| `interface/cli/chat_cli.py` | Interface | `run_chat()` หน้าแชทใน terminal: รันเครื่องมือที่โมเดลขอ (ถาม y/n ก่อนบันทึก), `/note`, `/notes`, `/help`, `/quit` |
 | `interface/{voice,tray}/` | Interface | เตรียมไว้สำหรับเสียงและไอคอนถาด (ยังว่าง) |
 | `bootstrap/settings.py` | Bootstrap | โมเดล pydantic ของค่าตั้ง และ `load_settings()` อ่าน `config.yaml` |
 | `bootstrap/container.py` | Bootstrap | `build_container()` ประกอบ Ollama + ไฟล์โน้ต + นาฬิกา เข้ากับ use case |
@@ -183,18 +187,22 @@ AIKOs (Artificial Intelligence Kontrol Operating System) คือเลขา�
 | `tests/integration/test_ollama_model.py` | เทสต์กับโมเดลจริง (ต้องตั้ง `AIKOS_LIVE=1`) |
 | `tests/test_architecture.py` | รัน import-linter ภายใน pytest |
 | `scripts/check_phase0.py` | ตรวจ Python, แพ็กเกจ ollama และให้โมเดลตอบอังกฤษ/ไทย |
-| `evals/README.md` | แผนชุดทดสอบคำสั่งเสียง (Phase 4) |
+| `evals/commands.yaml` | ข้อความไทย/อังกฤษ 18 ข้อ พร้อมเครื่องมือที่ควรเลือก |
+| `scripts/run_evals.py` | ให้คะแนนว่าโมเดลเลือกเครื่องมือถูกกี่ % และเร็วแค่ไหน |
 
 ### เส้นทางของข้อความ 1 ครั้ง
 
 ```text
-ผู้ใช้พิมพ์ "สวัสดี"
+ผู้ใช้พิมพ์ "จดไว้ว่าพรุ่งนี้ซื้อนม"
   → interface/cli/chat_cli.py      run_chat() รับข้อความ
-  → application/use_cases/chat.py  Chat.execute() เพิ่มลง Conversation
+  → application/use_cases/chat.py  Chat.execute() เพิ่มลง Conversation แล้วส่งพร้อมรายการเครื่องมือ
   → port LanguageModel.reply()     (ไม่รู้ว่าข้างหลังคือใคร)
-  → infrastructure/llm/ollama_model.py  ส่งไป Ollama แล้วตัด <think>
-  ← คำตอบกลับมา Chat จำไว้ใน Conversation
-  ← chat_cli แสดง "AIKOs> ..."
+  → infrastructure/llm/ollama_model.py  ส่งไป Ollama (think=False)
+  ← โมเดลตอบว่า "ขอใช้ take_note ข้อความ 'พรุ่งนี้ซื้อนม'"
+  ← chat_cli ถาม 'Save note "พรุ่งนี้ซื้อนม"? (y/n)'
+  → ถ้าตอบ y / ได้ / ใช่: TakeNote.execute() บันทึกลง data/notes/ แล้ว Chat.remember() จำผลไว้
+  ← แสดง "Aiko> Saved note at 09:30: พรุ่งนี้ซื้อนม"
+ถ้าเป็นคำถามทั่วไป โมเดลจะตอบเป็นข้อความ และ chat_cli แสดง "Aiko> ..."
 ```
 
 ---
@@ -204,7 +212,8 @@ AIKOs (Artificial Intelligence Kontrol Operating System) คือเลขา�
 รันในโฟลเดอร์โปรเจกต์ (`cd $HOME\OneDrive\Desktop\aikos`):
 
 ```powershell
-.venv\Scripts\python.exe -m aikos                     # คุยกับ AIKOs (/note ข้อความ, /help, /quit)
+.venv\Scripts\python.exe -m aikos                     # คุยกับ Aiko (พิมพ์ภาษาธรรมดา หรือ /note, /notes, /help, /quit)
+.venv\Scripts\python.exe scripts\run_evals.py         # วัดว่าเลือกเครื่องมือถูกกี่ %
 .venv\Scripts\python.exe -m pytest                    # รันเทสต์ทั้งหมด
 $env:AIKOS_LIVE="1"; .venv\Scripts\python.exe -m pytest -m live   # เทสต์กับโมเดลจริง
 .venv\Scripts\lint-imports.exe                        # ตรวจกฎ Clean Architecture
@@ -259,7 +268,7 @@ plugin ทางการทั้ง 6 ตัวมาจาก marketplace `an
 
 | Phase | เป้าหมาย |
 | --- | --- |
-| 1 | คุยผ่านข้อความ และใช้เครื่องมือแรก (มีแชทและ `/note` แล้ว) |
+| 1 ✅ | คุยผ่านข้อความ และเลือกเครื่องมือเองจากภาษาธรรมดา (จดโน้ต, ดูโน้ต) ถามก่อนบันทึก เลือกถูก 89% (16/18) เฉลี่ย 4.4 วินาที/ข้อความ |
 | 2 | ฟังเสียง (faster-whisper) และพูดตอบด้วยเสียงผู้หญิง (Piper `en_US-amy-medium` ภาษาอังกฤษ, Edge TTS `th-TH-PremwadeeNeural` ภาษาไทย) กดปุ่ม `ctrl+alt+space` เพื่อพูด |
 | 3 | คำปลุก: ได้ยิน "ไอโกะ", "Aiko" หรือ "สวัสดี ไอโกะ" แล้วตื่นทันที (วิธีตรวจจับคำไทยเลือกใน Phase 3) |
 
