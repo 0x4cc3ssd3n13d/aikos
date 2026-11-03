@@ -40,6 +40,7 @@ def test_container_wires_use_cases(tmp_path, model):
     assert container.chat.execute("hi").text == "OK"
     system = model.calls[0][0].content
     assert "ไอโกะ" in system and '"ฉัน"' in system
+    assert '"ค่ะ"' in system and '"คะ"' in system
     assert [t.name for t in model.tools_seen[0]] == ["take_note", "list_notes"]
     container.take_note.execute("from the container")
     assert list((tmp_path / "mydata" / "notes").glob("*.md"))
