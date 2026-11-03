@@ -2,7 +2,8 @@ import re
 from collections.abc import Sequence
 from typing import Any
 
-from aikos.domain.conversation import Message, Role
+from aikos.application.ports.language_model import ModelReply, ToolCall, ToolSpec
+from aikos.domain.conversation import Message
 
 _THINK_BLOCK = re.compile(r"<think>.*?</think>", re.S)
 
@@ -19,10 +20,25 @@ class OllamaLanguageModel:
         self._model = model
         self._no_think = no_think
 
-    def reply(self, messages: Sequence[Message]) -> str:
-        payload = [{"role": m.role.value, "content": m.content} for m in messages]
-        if self._no_think and payload and payload[-1]["role"] == Role.USER.value:
-            # Qwen3 soft switch: skip the long reasoning step, much faster on low-spec CPUs.
-            payload[-1]["content"] += " /no_think"
-        response = self._client.chat(model=self._model, messages=payload)
-        return _THINK_BLOCK.sub("", response["message"]["content"]).strip()
+    def reply(self, messages: Sequence[Message], tools: Sequence[ToolSpec] = ()) -> ModelReply:
+        request: dict[str, Any] = {
+            "model": self._model,
+            "messages": [{"role": m.role.value, "content": m.content} for m in messages],
+        }
+        if self._no_think:
+            # Qwen3 skips its hidden reasoning: "ready" took 22 s with the old "/no_think" text, 0.5 s with this.
+            request["think"] = False
+        if tools:
+            request["tools"] = [
+                {
+                    "type": "function",
+                    "function": {"name": t.name, "description": t.description, "parameters": dict(t.parameters)},
+                }
+                for t in tools
+            ]
+        message = self._client.chat(**request)["message"]
+        calls = message.get("tool_calls") or []
+        if calls:
+            function = calls[0]["function"]  # one action at a time; the user confirms each
+            return ModelReply(tool_call=ToolCall(function["name"], dict(function.get("arguments") or {})))
+        return ModelReply(text=_THINK_BLOCK.sub("", message.get("content") or "").strip())

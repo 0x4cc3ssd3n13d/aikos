@@ -17,8 +17,8 @@ src/aikos/
   bootstrap/       reads config.yaml and wires everything together
   main.py          starts AIKOs
 tests/             unit tests (fakes, no Ollama needed) and integration tests
-evals/             command -> expected tool cases (from Phase 4)
-scripts/           setup checks
+evals/             message -> expected tool cases (scored by scripts/run_evals.py)
+scripts/           setup check and evals
 config.yaml        all settings
 ```
 
@@ -34,5 +34,7 @@ Dependencies only point inward (interface and infrastructure -> application -> d
 ```
 
 Check that Ollama and the model work: `.venv\Scripts\python.exe scripts\check_phase0.py`
+Score tool choice in Thai and English: `.venv\Scripts\python.exe scripts\run_evals.py`
 
-In the chat, `/note buy milk` saves a note to `data/notes/`, `/quit` exits.
+In the chat, just ask: "จดไว้ว่าพรุ่งนี้ซื้อนม" saves a note after you confirm, "จดอะไรไว้บ้าง" lists notes.
+Commands: `/note buy milk` saves directly to `data/notes/`, `/notes` lists notes, `/quit` exits.

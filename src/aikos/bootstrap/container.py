@@ -2,7 +2,9 @@ from dataclasses import dataclass
 
 from aikos.application.ports.language_model import LanguageModel
 from aikos.application.prompts import system_prompt
+from aikos.application.tools import NOTE_TOOLS
 from aikos.application.use_cases.chat import Chat
+from aikos.application.use_cases.list_notes import ListNotes
 from aikos.application.use_cases.take_note import TakeNote
 from aikos.bootstrap.settings import Settings
 from aikos.domain.conversation import Conversation
@@ -15,6 +17,7 @@ from aikos.infrastructure.system.clock import SystemClock
 class Container:
     chat: Chat
     take_note: TakeNote
+    list_notes: ListNotes
 
 
 def build_container(settings: Settings, model: LanguageModel | None = None) -> Container:
@@ -25,6 +28,7 @@ def build_container(settings: Settings, model: LanguageModel | None = None) -> C
         model,
         Conversation(max_turns=settings.assistant.memory_turns),
         system_prompt(settings.assistant.name, settings.assistant.name_th, settings.assistant.self_pronoun_th),
+        tools=NOTE_TOOLS,
     )
     notes = MarkdownNoteRepository(settings.paths.data_dir / "notes")
-    return Container(chat=chat, take_note=TakeNote(notes, SystemClock()))
+    return Container(chat=chat, take_note=TakeNote(notes, SystemClock()), list_notes=ListNotes(notes))

@@ -19,7 +19,13 @@ def main(argv: list[str] | None = None) -> int:
 
     settings = load_settings(args.config)
     container = build_container(settings)
-    run_chat(container.chat, container.take_note, assistant_name=settings.assistant.name)
+    run_chat(
+        container.chat,
+        container.take_note,
+        container.list_notes,
+        assistant_name=settings.assistant.name,
+        confirm_changes=settings.safety.confirm_before_changes,
+    )
     return 0
 
 

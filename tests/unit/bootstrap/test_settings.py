@@ -37,8 +37,10 @@ def test_container_wires_use_cases(tmp_path, model):
     config = tmp_path / "config.yaml"
     config.write_text("paths:\n  data_dir: mydata\n", encoding="utf-8")
     container = build_container(load_settings(config), model=model)
-    assert container.chat.execute("hi") == "OK"
+    assert container.chat.execute("hi").text == "OK"
     system = model.calls[0][0].content
     assert "ไอโกะ" in system and '"ฉัน"' in system
+    assert [t.name for t in model.tools_seen[0]] == ["take_note", "list_notes"]
     container.take_note.execute("from the container")
     assert list((tmp_path / "mydata" / "notes").glob("*.md"))
+    assert container.list_notes.execute()[0].text == "from the container"
