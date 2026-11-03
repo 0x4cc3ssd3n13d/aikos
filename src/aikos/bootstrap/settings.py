@@ -6,7 +6,9 @@ from pydantic import BaseModel, Field
 
 
 class AssistantSettings(BaseModel):
-    name: str = "AIKOs"
+    name: str = "Aiko"
+    name_th: str = "ไอโกะ"
+    self_pronoun_th: str = "ฉัน"
     languages: list[str] = Field(default_factory=lambda: ["th", "en"])
     memory_turns: int = 10
 
@@ -23,9 +25,11 @@ class LlmSettings(BaseModel):
 class SpeechSettings(BaseModel):
     stt_model: str = "base"
     push_to_talk_key: str = "ctrl+alt+space"
-    wake_word: str = "hey_aikos"
+    wake_words: list[str] = Field(default_factory=lambda: ["ไอโกะ", "Aiko", "สวัสดี ไอโกะ"])
     tts_english: str = "piper"
+    tts_english_voice: str = "en_US-amy-medium"
     tts_thai: str = "edge-tts"
+    tts_thai_voice: str = "th-TH-PremwadeeNeural"
 
 
 class CloudSettings(BaseModel):

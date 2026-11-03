@@ -157,7 +157,7 @@ AIKOs (Artificial Intelligence Kontrol Operating System) คือเลขา�
 | `domain/note.py` | Domain | `Note` ต้องมีข้อความ และเวลาต้องมี time zone |
 | `domain/reminder.py` | Domain | `Reminder` และ `is_due()` (ใช้ใน Phase 4) |
 | `domain/errors.py` | Domain | `DomainError`, `InvalidInput` สำหรับข้อมูลผิดกฎ |
-| `application/prompts.py` | Application | system prompt ของ AIKOs (บุคลิก, ภาษา, ห้ามอ้างว่าทำสิ่งที่ไม่ได้ทำ) |
+| `application/prompts.py` | Application | system prompt ของ Aiko (ชื่อ ไอโกะ, แทนตัวว่า "ฉัน", ภาษา, ห้ามอ้างว่าทำสิ่งที่ไม่ได้ทำ) |
 | `application/ports/language_model.py` | Application | port `LanguageModel.reply(messages)` |
 | `application/ports/note_repository.py` | Application | port `NoteRepository.save()` และ `list_recent()` |
 | `application/ports/clock.py` | Application | port `Clock.now()` (ทำให้เทสต์ล็อกเวลาได้) |
@@ -260,7 +260,14 @@ plugin ทางการทั้ง 6 ตัวมาจาก marketplace `an
 | Phase | เป้าหมาย |
 | --- | --- |
 | 1 | คุยผ่านข้อความ และใช้เครื่องมือแรก (มีแชทและ `/note` แล้ว) |
-| 2 | ฟังเสียง (faster-whisper) และพูดตอบ (Piper ภาษาอังกฤษ, Edge TTS ภาษาไทย) กดปุ่ม `ctrl+alt+space` เพื่อพูด |
-| 3 | คำปลุก "hey AIKOs" (openWakeWord) |
+| 2 | ฟังเสียง (faster-whisper) และพูดตอบด้วยเสียงผู้หญิง (Piper `en_US-amy-medium` ภาษาอังกฤษ, Edge TTS `th-TH-PremwadeeNeural` ภาษาไทย) กดปุ่ม `ctrl+alt+space` เพื่อพูด |
+| 3 | คำปลุก: ได้ยิน "ไอโกะ", "Aiko" หรือ "สวัสดี ไอโกะ" แล้วตื่นทันที (วิธีตรวจจับคำไทยเลือกใน Phase 3) |
+
+### บุคลิกของผู้ช่วย
+
+- ชื่อ: **Aiko** ออกเสียงแบบชื่อญี่ปุ่น ภาษาไทยเรียกว่า **ไอโกะ** (โปรเจกต์ยังชื่อ AIKOs)
+- แทนตัวเองว่า **"ฉัน"** และใช้เสียงผู้หญิง
+- ตั้งค่าใน `config.yaml`: `assistant.name`, `assistant.name_th`, `assistant.self_pronoun_th`, `speech.wake_words`, `speech.tts_english_voice`, `speech.tts_thai_voice`
+- Edge TTS ต้องใช้อินเทอร์เน็ต (บริการของ Microsoft) ซึ่งขัดกับกฎ "ไม่เรียกเน็ต" ต้องตัดสินใจใน Phase 2 ว่าจะยอมใช้ หรือหาเสียงไทยที่รันในเครื่องได้
 | 4 | งานเลขา: เตือนความจำ, ตารางวันนี้, ร่างอีเมล, ค้นไฟล์ + ชุด eval |
 | 6 | ใช้ Claude บน cloud เมื่อเปิด `cloud.enabled` (งบรายเดือนตาม `config.yaml`) |
