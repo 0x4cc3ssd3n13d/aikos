@@ -45,3 +45,5 @@ def test_container_wires_use_cases(tmp_path, model):
     container.take_note.execute("from the container")
     assert list((tmp_path / "mydata" / "notes").glob("*.md"))
     assert container.list_notes.execute()[0].text == "from the container"
+    model.answers = ["สวัสดีครับ ผมชื่อไอโกะ"]
+    assert container.chat.execute("แนะนำตัว").text == "สวัสดีค่ะ ฉันชื่อไอโกะ"
