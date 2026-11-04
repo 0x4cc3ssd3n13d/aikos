@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from aikos.application.ports.language_model import LanguageModel
-from aikos.application.prompts import system_prompt
+from aikos.application.prompts import female_thai, system_prompt
 from aikos.application.tools import NOTE_TOOLS
 from aikos.application.use_cases.chat import Chat
 from aikos.application.use_cases.list_notes import ListNotes
@@ -29,6 +29,7 @@ def build_container(settings: Settings, model: LanguageModel | None = None) -> C
         Conversation(max_turns=settings.assistant.memory_turns),
         system_prompt(settings.assistant.name, settings.assistant.name_th, settings.assistant.self_pronoun_th),
         tools=NOTE_TOOLS,
+        polish=female_thai,
     )
     notes = MarkdownNoteRepository(settings.paths.data_dir / "notes")
     return Container(chat=chat, take_note=TakeNote(notes, SystemClock()), list_notes=ListNotes(notes))

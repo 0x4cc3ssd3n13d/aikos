@@ -159,7 +159,7 @@ AIKOs (Artificial Intelligence Kontrol Operating System) คือเลขา�
 | `domain/note.py` | Domain | `Note` ต้องมีข้อความ และเวลาต้องมี time zone |
 | `domain/reminder.py` | Domain | `Reminder` และ `is_due()` (ใช้ใน Phase 4) |
 | `domain/errors.py` | Domain | `DomainError`, `InvalidInput` สำหรับข้อมูลผิดกฎ |
-| `application/prompts.py` | Application | system prompt ของ Aiko (ชื่อ ไอโกะ, แทนตัวว่า "ฉัน", ภาษา, ห้ามอ้างว่าทำสิ่งที่ไม่ได้ทำ) |
+| `application/prompts.py` | Application | system prompt ของ Aiko (ชื่อ ไอโกะ, แทนตัวว่า "ฉัน", ลงท้ายค่ะ, ห้ามอ้างว่าทำสิ่งที่ไม่ได้ทำ) และ `female_thai()` แก้คำผู้ชายที่โมเดลหลุด (ครับ → ค่ะ, ผมชื่อ → ฉันชื่อ) |
 | `application/ports/language_model.py` | Application | port `LanguageModel.reply(messages)` |
 | `application/ports/note_repository.py` | Application | port `NoteRepository.save()` และ `list_recent()` |
 | `application/ports/clock.py` | Application | port `Clock.now()` (ทำให้เทสต์ล็อกเวลาได้) |
